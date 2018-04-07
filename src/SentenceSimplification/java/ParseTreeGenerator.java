@@ -9,7 +9,7 @@ import edu.stanford.nlp.util.CoreMap;
 import java.util.List;
 import java.util.Properties;
 
-class ParseTreeGenerator {
+public class ParseTreeGenerator {
 
     private Annotation getAnnotation(String document){
 
@@ -39,7 +39,9 @@ class ParseTreeGenerator {
                 parseTrees.add(tree);
             }
             catch (Exception e)
-            {}
+            {
+
+            }
         }
 
         return parseTrees;

@@ -6,6 +6,7 @@ import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.TreeCoreAnnotations;
 import edu.stanford.nlp.util.CoreMap;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -28,20 +29,14 @@ public class ParseTreeGenerator {
 
     public List<Tree> getParseTreesForDocument(String document){
 
-        List<Tree> parseTrees = null;
+        List<Tree> parseTrees = new ArrayList<>();
 
         Annotation annotatedDocument = getAnnotation(document);
 
         List<CoreMap> sentences = annotatedDocument.get(CoreAnnotations.SentencesAnnotation.class);
         for(CoreMap sentence: sentences){
             Tree tree = sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
-            try {
-                parseTrees.add(tree);
-            }
-            catch (Exception e)
-            {
-
-            }
+            parseTrees.add(tree);
         }
 
         return parseTrees;

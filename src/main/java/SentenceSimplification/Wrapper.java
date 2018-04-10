@@ -1,4 +1,4 @@
-package main.java.SentenceSimplification;
+package SentenceSimplification;
 
 import edu.stanford.nlp.trees.Tree;
 
@@ -17,6 +17,9 @@ public class Wrapper {
         //perform pronoun noun phrase coreference resolution using arkref
         CoreferenceResolver coreferenceResolver = new CoreferenceResolver();
         coreferenceResolver.resolveCorefence(parseTrees);
+
+        for(Tree tree : parseTrees)
+            tree.pennPrint();
 
         //perform sentence simplification
     }

@@ -1,4 +1,4 @@
-package main.java.SentenceSimplification;
+package SentenceSimplification;
 
 import edu.stanford.nlp.ling.HasWord;
 import edu.stanford.nlp.parser.lexparser.LexicalizedParser;

@@ -1,4 +1,4 @@
-package main.java.SentenceSimplification;
+package SentenceSimplification;
 
 import arkref.analysis.FindMentions;
 import arkref.analysis.RefsToEntities;
@@ -21,20 +21,16 @@ public class CoreferenceResolver {
 
         for (Tree t : originalParseTrees) {
 
-
-            System.out.println("Original tree");
             t.pennPrint();
             Document.addNPsAbovePossessivePronouns(t);
-            System.out.println("After adding noun phrases above possessive pronouns");
             t.pennPrint();
             Document.addInternalNPStructureForRoleAppositives(t);
-            System.out.println("after internal np structure for role appositives");
             t.pennPrint();
             trees.add(t);
-            /*entityStrings.add(convertSupersensesToEntityString(
+            entityStrings.add(convertSupersensesToEntityString(
                     t,
                     SuperSenseWrapper.getInstance().annotateSentenceWithSupersenses(
-                            t)));*/
+                            t)));
         }
 
         doc = new Document(trees, entityStrings);
@@ -42,5 +38,29 @@ public class CoreferenceResolver {
         FindMentions.go(doc);
         Resolve.go(doc);
         RefsToEntities.go(doc);
+    }
+
+    private String convertSupersensesToEntityString(Tree t,
+                                                    List<String> supersenses) {
+        String res = "";
+
+        List<String> converted = new ArrayList<String>();
+        for (int i = 0; i < supersenses.size(); i++) {
+            if (supersenses.get(i).endsWith("noun.person")) {
+                converted.add("PERSON");
+            } else {
+                converted.add(supersenses.get(i));
+            }
+        }
+
+        List<Tree> leaves = t.getLeaves();
+        while (leaves.size() > converted.size())
+            converted.add("0");
+        for (int i = 0; i < leaves.size(); i++) {
+            if (i > 0) res += " ";
+            res += leaves.get(i) + "/" + converted.get(i);
+        }
+
+        return res;
     }
 }

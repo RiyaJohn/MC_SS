@@ -5,12 +5,18 @@ import edu.cmu.ark.LabeledSentence;
 import edu.stanford.nlp.trees.Tree;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.ObjectInputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.zip.GZIPInputStream;
 
+import net.didion.jwnl.JWNL;
 import net.didion.jwnl.data.IndexWord;
 import net.didion.jwnl.data.POS;
 import net.didion.jwnl.dictionary.Dictionary;
+import net.didion.jwnl.dictionary.MorphologicalProcessor;
 
 public class SuperSenseWrapper {
 
@@ -18,7 +24,16 @@ public class SuperSenseWrapper {
     private static SuperSenseWrapper superSenseWrapperInstance;
 
     private SuperSenseWrapper(){
-        discriminativeTagger = DiscriminativeTagger.loadModel(ClassLoader.getSystemResource("config/superSenseModelAllSemcor.ser.gz").toExternalForm());
+        String propertiesFilePath = ClassLoader.getSystemResource("config/QuestionTransducer.properties").getFile().replaceAll("%20"," ");
+        DiscriminativeTagger.loadProperties(propertiesFilePath);
+        String modelPath = ClassLoader.getSystemResource("config/superSenseModelAllSemcor.ser.gz").toExternalForm().substring(6).replaceAll("%20"," ");
+        discriminativeTagger = DiscriminativeTagger.loadModel(modelPath);
+        try {
+            JWNL.initialize(new FileInputStream("C:/Users/Sharanya R C/IdeaProjects/MachineComprehension/src/main/resources/config/file_properties.xml"));
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     public static SuperSenseWrapper getInstance(){
@@ -129,7 +144,10 @@ public class SuperSenseWrapper {
                         NNP - Proper noun, singular
                         NNPS - Proper noun, plural
                      */
-                    case 'N':   iw = Dictionary.getInstance().getMorphologicalProcessor().lookupBaseForm(
+                    case 'N':
+                                Dictionary dict = Dictionary.getInstance();
+                                MorphologicalProcessor mp = dict.getMorphologicalProcessor();
+                                iw = Dictionary.getInstance().getMorphologicalProcessor().lookupBaseForm(
                             POS.NOUN, res);
                                 break;
                     /*

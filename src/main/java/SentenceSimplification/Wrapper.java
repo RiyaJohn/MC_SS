@@ -7,6 +7,7 @@ import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 public class Wrapper {
 
@@ -66,6 +67,13 @@ public class Wrapper {
             fileWriter.close();
         } catch (Exception e) {
             e.printStackTrace();
+        }
+
+        //generate how and why questions
+        QuestionGenerator questionGenerator = new QuestionGenerator();
+        List<QuestionAnswer> howAndWhyQuestions = questionGenerator.generateQuestions(trees);
+        for(QuestionAnswer qa: howAndWhyQuestions){
+            System.out.println(qa.getQuestion() + " "+ qa.getAnswer());
         }
     }
 }

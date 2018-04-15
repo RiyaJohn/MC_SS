@@ -468,6 +468,12 @@ public class AnalysisUtilities {
 		return text;
 	}
 
+	public static String getQuestionString(Tree question){
+		String[] questionArray = stringArrayFromLabels(question.yield());
+		String questionString = String.join(" ", questionArray);
+		return questionString;
+	}
+
 	public String getSurfaceForm(String lemma, String pos) {
 		return conjugator.getSurfaceForm(lemma, pos);
 	}

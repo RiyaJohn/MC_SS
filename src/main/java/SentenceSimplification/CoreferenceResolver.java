@@ -35,11 +35,8 @@ public class CoreferenceResolver {
 
         for (Tree t : originalParseTrees) {
 
-            t.pennPrint();
             Document.addNPsAbovePossessivePronouns(t);
-            t.pennPrint();
             Document.addInternalNPStructureForRoleAppositives(t);
-            t.pennPrint();
             trees.add(t);
             entityStrings.add(convertSupersensesToEntityString(
                     t,
@@ -75,7 +72,7 @@ public class CoreferenceResolver {
             if (i > 0) res += " ";
             res += leaves.get(i) + "/" + converted.get(i);
         }
-
+        System.out.println(res);
         return res;
     }
 

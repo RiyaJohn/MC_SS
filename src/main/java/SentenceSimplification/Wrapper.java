@@ -10,8 +10,7 @@ import java.util.List;
 
 public class Wrapper {
 
-    public static void main(String[] args)
-    {
+    public static void main(String[] args) {
         String document = "passage.txt";
 
         //generate parse trees for each sentence in the document
@@ -28,14 +27,14 @@ public class Wrapper {
         Collection<Question> tmpSet;
 
         int sentnum = 0;
-        for(Tree sentence: parseTrees){
-            if(AnalysisUtilities.filterOutSentenceByPunctuation(AnalysisUtilities.orginialSentence(sentence.yield()))){
+        for (Tree sentence : parseTrees) {
+            if (AnalysisUtilities.filterOutSentenceByPunctuation(AnalysisUtilities.orginialSentence(sentence.yield()))) {
                 sentnum++;
                 continue;
             }
 
             tmpSet = sentenceSimplifier.simplify(sentence, false);
-            for(Question q: tmpSet){
+            for (Question q : tmpSet) {
                 q.setSourceSentenceNumber(sentnum);
                 q.setSourceDocument(coreferenceResolver.getDocument());
             }
@@ -50,23 +49,22 @@ public class Wrapper {
 
         StringBuilder sb = new StringBuilder();
         //upcase the first tokens of all output trees.
-        for(Question q: trees){
+        for (Question q : trees) {
             AnalysisUtilities.upcaseFirstToken(q.getIntermediateTree());
             List<Tree> simplifiedSentence = q.getIntermediateTree().getLeaves();
-            for (Tree s : simplifiedSentence)
-            {
+            for (Tree s : simplifiedSentence) {
                 sb.append(s.toString());
                 sb.append(" ");
             }
+            sb.append("\n");
         }
-        try{
+        try {
             File file = new File("simplifiedSentences.txt");
             FileWriter fileWriter = new FileWriter(file);
             fileWriter.write(sb.toString());
             fileWriter.flush();
             fileWriter.close();
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

@@ -73,7 +73,7 @@ public class Wrapper {
         QuestionGenerator questionGenerator = new QuestionGenerator();
         List<QuestionAnswer> howAndWhyQuestions = questionGenerator.generateQuestions(trees);
         for(QuestionAnswer qa: howAndWhyQuestions){
-            System.out.println(qa.getQuestion() + " "+ qa.getAnswer());
+            System.out.println("Question: "+qa.getQuestion() + " Answer: "+ qa.getAnswer());
         }
     }
 }

@@ -45,9 +45,7 @@ import org.apache.commons.lang.StringUtils;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class AnalysisUtilities {
 	private AnalysisUtilities() {
@@ -472,6 +470,40 @@ public class AnalysisUtilities {
 		String[] questionArray = stringArrayFromLabels(question.yield());
 		String questionString = String.join(" ", questionArray);
 		return questionString;
+	}
+
+	public static Map<String, String> getTregexFromFile(String filePath){
+
+		Map<String, String> filemap = new HashMap<String, String>();
+
+		String line;
+		try{
+
+			BufferedReader reader = new BufferedReader(new FileReader(filePath));
+			while ((line = reader.readLine()) != null)
+			{
+				String[] parts = line.split("_____", 2);
+				if (parts.length >= 2)
+				{
+					String pattern = parts[0];
+					String whword = parts[1];
+					filemap.put(pattern, whword);
+				} else {
+					System.out.println("invalid line: " + line);
+				}
+			}
+			//TESTING
+			for (String key : filemap.keySet())
+			{
+				System.out.println(key + "  " + filemap.get(key));
+			}
+			reader.close();
+
+		} catch(Exception e){
+			e.printStackTrace();
+		}
+
+		return filemap;
 	}
 
 	public String getSurfaceForm(String lemma, String pos) {

@@ -616,11 +616,13 @@ public class SentenceSimplifier {
                 + " >+(VP) (S|SINV < NP=subj) "
                 + " >> (ROOT <<# /VB.*/=tense) "; //tense determined by top-most verb
 
+        Tree temp = input.getIntermediateTree().deepCopy();
         matchPattern = TregexPatternFactory.getPattern(tregexOpStr);
-        matcher = matchPattern.matcher(input.getIntermediateTree());
+        matcher = matchPattern.matcher(temp);
+
         while (matcher.find()) {
             String verbPOS = findTense(matcher.getNode("tense"));
-            Tree p = matcher.getNode("participial").deepCopy();
+            Tree p = matcher.getNode("participial");
             Tree verb = matcher.getNode("verb");
             String verbLemma = AnalysisUtilities.getInstance().getLemma(
                     verb.getChild(0).label().value(),

@@ -1,0 +1,8 @@
+PP=replace << /(B-noun.location|B-noun.artifact)/_____where
+NP=replace << /B-noun.person/_____who
+NP=replace < (/[PRP | ^NN.*]/ $+ POS)_____whose
+/PRP\$/=replace_____whose
+NP=replace < PRP_____who
+/PP/=replace << /B-noun.time/_____when
+(NP=replace !>> PP) << /B-noun.time/_____when
+PP << /B-noun.time/_____when

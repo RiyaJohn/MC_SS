@@ -4,10 +4,7 @@ import edu.stanford.nlp.trees.Tree;
 
 import java.io.File;
 import java.io.FileWriter;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Wrapper {
 
@@ -26,6 +23,9 @@ public class Wrapper {
         SentenceSimplifier sentenceSimplifier = new SentenceSimplifier();
         List<Question> trees = new ArrayList<>();
         Collection<Question> tmpSet;
+        //Supersense for where:
+
+
 
         int sentnum = 0;
         for (Tree sentence : parseTrees) {
@@ -72,8 +72,13 @@ public class Wrapper {
         //generate how and why questions
         QuestionGenerator questionGenerator = new QuestionGenerator();
         List<QuestionAnswer> howAndWhyQuestions = questionGenerator.generateQuestions(trees);
+        Set<QuestionAnswer> withoutduplicates = new HashSet<>(howAndWhyQuestions);
+        howAndWhyQuestions.clear();
+        howAndWhyQuestions.addAll(withoutduplicates);
         for(QuestionAnswer qa: howAndWhyQuestions){
-            System.out.println("Question: "+qa.getQuestion() + " Answer: "+ qa.getAnswer());
+            System.out.println("Question:"+qa.getQuestion()+" Answer:"+qa.getAnswer());
+
         }
-    }
+
+        }
 }

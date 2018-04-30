@@ -72,7 +72,7 @@ public class CoreferenceResolver {
             if (i > 0) res += " ";
             res += leaves.get(i) + "/" + converted.get(i);
         }
-        System.out.println(res);
+
         return res;
     }
 

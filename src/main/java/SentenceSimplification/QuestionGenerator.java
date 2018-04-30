@@ -7,6 +7,7 @@ import edu.stanford.nlp.trees.tregex.TregexPattern;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -16,12 +17,31 @@ public class QuestionGenerator {
 
         List<QuestionAnswer> questionAnswers = new ArrayList<>();
 
+        Map<String, String> tregexAndWhWordList = AnalysisUtilities.getTregexFromFile("C:/Users/Sharanya R C/IdeaProjects/MachineComprehension/src/main/resources/tregex.txt");
         for(Question q : sentenceParseTrees){
             questionAnswers.addAll(generateHowQuestions(q.getSourceTree()));
+            questionAnswers.addAll(generateHowQuestions(q.getIntermediateTree()));
             questionAnswers.addAll(generateWhyQuestions(q.getSourceTree()));
             questionAnswers.addAll(generateWhyQuestions(q.getIntermediateTree()));
+            Tree superSenseTags = getSuperSenseTagTree(q.getIntermediateTree());
+            for(Map.Entry<String,String> tregexAndWhWord : tregexAndWhWordList.entrySet()) {
+                questionAnswers.addAll(generateWhereWhoQuestions(q.getIntermediateTree(), superSenseTags, tregexAndWhWord.getKey(), tregexAndWhWord.getValue()));
+            }
         }
         return questionAnswers;
+    }
+
+    Tree getSuperSenseTagTree(Tree sentenceTree){
+        List<String> tags = SuperSenseWrapper.getInstance().annotateSentenceWithSupersenses(
+                sentenceTree);
+
+        Tree ssTree = sentenceTree.deepCopy();
+        List<Tree> leaves = ssTree.getLeaves();
+
+        for (int i = 0; i < leaves.size(); i++) {
+            leaves.get(i).setValue(tags.get(i));
+        }
+        return ssTree;
     }
 
     private List<QuestionAnswer> generateHowQuestions(Tree parseTree){
@@ -38,7 +58,6 @@ public class QuestionGenerator {
         tregexOpStr = "/^RB.*/ = adverb [$+ /^RB.*/ >> (ADVP  $ /^VB.*/ ) >> VP | >: (ADVP  $ /^VB.*/ ) >> VP]| ADVP = adverbphrase ($ /^VB.*/| $ VP)";
         matchPattern = TregexPatternFactory.getPattern(tregexOpStr);
         matcher = matchPattern.matcher(parseTree);
-
 
         while(matcher.find()){
             oldNode = matcher.getNode("adverb");
@@ -207,6 +226,44 @@ public class QuestionGenerator {
             String questionString = AnalysisUtilities.getQuestionString(parseTree);
             questionAnswers.add(new QuestionAnswer(questionString, answer.toString()));
             parentNode.setChild(nodeNumber,oldNode);
+        }
+        return questionAnswers;
+    }
+
+    private List<QuestionAnswer> generateWhereWhoQuestions(Tree parseTree, Tree superSenseTags, String tregexOpStr, String whQuestionPhrase){
+        List<QuestionAnswer> questionAnswers = new ArrayList<>();
+        TregexPattern matchPattern;
+        TregexMatcher matcher;
+        Tree answerNode;
+        Tree oldNode;
+        Tree oldNodeInSST;
+        Tree parentNode;
+        matchPattern = TregexPatternFactory.getPattern(tregexOpStr);
+        matcher = matchPattern.matcher(superSenseTags);
+        System.out.println(parseTree.getLeaves());
+        System.out.println(superSenseTags.getLeaves());
+        while(matcher.find()){
+            oldNodeInSST = matcher.getNode("replace");
+            if(oldNodeInSST!=null) {
+                int nodeNumber = oldNodeInSST.nodeNumber(superSenseTags);
+                oldNode = parseTree.getNodeNumber(nodeNumber);
+                answerNode = oldNode.deepCopy();
+                List<Tree> answerList = answerNode.getLeaves();
+                StringBuilder answer = new StringBuilder();
+                for (Tree t : answerList) {
+                    answer.append(t.toString() + " ");
+                }
+                int numChildren = answerNode.numChildren();
+                while (numChildren > 0)
+                    answerNode.removeChild(--numChildren);
+                answerNode.setValue(whQuestionPhrase);
+                parentNode = oldNode.parent(parseTree);
+                int nodeNumber2 = parentNode.objectIndexOf(oldNode);
+                parentNode.setChild(nodeNumber2, answerNode);
+                String questionString = AnalysisUtilities.getQuestionString(parseTree);
+                questionAnswers.add(new QuestionAnswer(questionString, answer.toString()));
+                parentNode.setChild(nodeNumber2, oldNode);
+            }
         }
         return questionAnswers;
     }

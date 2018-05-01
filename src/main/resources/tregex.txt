@@ -8,3 +8,9 @@ NP < ( PRP < !/[I|i]t/)_____who______original
 PP << /B-noun.time/_____when_____supersense
 /.*/=replace > (CD|QP)_____how many_____original
 /.*/=replace < (IN  [</while/ | </before/ | </after/ | </during/ | </whilst/] & $+ ( S < VP))_____when_____original
+/^N[N|P].*/=replace [ !<<PRP & !<</B-noun.location/ & !<</B-noun.time/ & !<</B-noun.person/]_____what_____supersense
+VBD=replace_____did what_____original
+VP=replace < VBG_____doing what______original
+VBN=replace_____done what_____original
+VBP=replace_____does what_____original
+VP=replace_____what_____original

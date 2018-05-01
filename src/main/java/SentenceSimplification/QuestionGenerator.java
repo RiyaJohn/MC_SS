@@ -30,6 +30,7 @@ public class QuestionGenerator {
                 questionAnswers.addAll(generateWhereWhoQuestions(q.getIntermediateTree(), secondTree, tregexAndWhWord.getKey(), questionAndTree[0]));
             }
         }
+        questionAnswers.addAll(generateAdditionalWhyQuestions(sentenceParseTrees));
         return questionAnswers;
     }
 
@@ -269,4 +270,109 @@ public class QuestionGenerator {
         }
         return questionAnswers;
     }
+
+    //as a result, as a consequence
+    //is passed the simplified sentences
+    private List<QuestionAnswer> generateAdditionalWhyQuestions(List<Question> parseTreeList) {
+        List<QuestionAnswer> questionAnswers = new ArrayList<>();
+        Pattern pattern = Pattern.compile("as\\sa\\s(result|consequence)\\s[.]");
+        for (int i = 0; i < parseTreeList.size(); i++) {
+            String sentence = AnalysisUtilities.getQuestionString(parseTreeList.get(i).getIntermediateTree());
+            Matcher pmatcher = pattern.matcher(sentence);
+            while (pmatcher.find()) {
+                int matchStart = pmatcher.start();
+                int matchEnd = pmatcher.end();
+                String answer = AnalysisUtilities.getQuestionString(parseTreeList.get(i - 1).getIntermediateTree());
+                int start = (matchStart > 0) ? matchStart - 1 : 0;
+                int end = (matchEnd + 1) < sentence.length() ? matchEnd + 1 : sentence.length();
+                String question = sentence.substring(0, start) + " why " + sentence.substring(end, sentence.length());
+                questionAnswers.add(new QuestionAnswer(question, answer));
+
+            }
+        }
+        Pattern secondPattern = Pattern.compile("as\\sa\\s(result|consequence)\\sof.*");
+        for (int i = 0; i < parseTreeList.size(); i++) {
+            String sentence = AnalysisUtilities.getQuestionString(parseTreeList.get(i).getIntermediateTree());
+            Matcher pmatcher = secondPattern.matcher(sentence);
+            while (pmatcher.find()) {
+                int matchStart = pmatcher.start();
+                int matchEnd = pmatcher.end();
+                String answer = sentence.substring(matchStart,matchEnd);
+                int start = (matchStart > 0) ? matchStart - 1 : 0;
+                int end = (matchEnd + 1) < sentence.length() ? matchEnd + 1 : sentence.length();
+                String question = sentence.substring(0, start) + " why " + sentence.substring(end, sentence.length());
+                questionAnswers.add(new QuestionAnswer(question, answer));
+            }
+        }
+
+        Pattern thirdPattern = Pattern.compile("(Therefore\\s*,|;\\s*therefore\\s*,|Hence\\s*,|;\\s*hence\\s*,)");
+        for (int i = 0; i < parseTreeList.size(); i++) {
+            String sentence = AnalysisUtilities.getQuestionString(parseTreeList.get(i).getSourceTree());
+            Matcher pmatcher = thirdPattern.matcher(sentence);
+            while (pmatcher.find()) {
+                int matchStart = pmatcher.start();
+                int matchEnd = pmatcher.end();
+                String answer = AnalysisUtilities.getQuestionString(parseTreeList.get(i - 1).getSourceTree());
+                int start = (matchStart > 0) ? matchStart - 1 : 0;
+                int end = (matchEnd + 1) < sentence.length() ? matchEnd + 1 : sentence.length();
+                String question = sentence.substring(0, start) + " why " + sentence.substring(end, sentence.length());
+                questionAnswers.add(new QuestionAnswer(question, answer));
+
+            }
+        }
+        Pattern fourthPattern = Pattern.compile("and\\s(therefore|hence)");
+        for (int i = 0; i < parseTreeList.size(); i++) {
+            String sentence = AnalysisUtilities.getQuestionString(parseTreeList.get(i).getSourceTree());
+            Matcher pmatcher = fourthPattern.matcher(sentence);
+            while (pmatcher.find()) {
+                int matchStart = pmatcher.start();
+                int matchEnd = pmatcher.end();
+                String answer = sentence.substring(0,matchStart);
+                String question = " why " + sentence.substring(matchEnd + 1, sentence.length());
+                questionAnswers.add(new QuestionAnswer(question, answer));
+            }
+        }
+
+        Pattern fifthPattern = Pattern.compile("caused");
+        for (int i = 0; i < parseTreeList.size(); i++) {
+            String sentence = AnalysisUtilities.getQuestionString(parseTreeList.get(i).getSourceTree());
+            Matcher pmatcher = fifthPattern.matcher(sentence);
+            while (pmatcher.find()) {
+                int matchStart = pmatcher.start();
+                int matchEnd = pmatcher.end();
+                String sentencePart1 = sentence.substring(0,matchStart);
+                String sentencePart2 = sentence.substring(matchEnd+1, sentence.length());
+                String question = null;
+                String answer = null;
+                if(sentencePart2.substring(0,2).equals("by")==true){
+                    //reason is after the caused
+                    answer = sentencePart2.substring(3);
+                    if(sentencePart1.startsWith("It")){
+                        //question is the previous sentence
+                        question = AnalysisUtilities.getQuestionString(parseTreeList.get(i-1).getSourceTree()) + "why";
+                    }
+                    else
+                    {
+                        //question is sentencePart1
+                        question = sentencePart1 + "caused by what";
+                    }
+                }
+                else{
+                    question = "What caused " + sentencePart2;
+                    if(sentencePart1.startsWith("It")){
+                        //reason is the previous sentence
+                        answer = AnalysisUtilities.getQuestionString(parseTreeList.get(i-1).getSourceTree());
+                    }
+                    else
+                    {
+                        //reason is sentencePart1
+                        answer = sentencePart1;
+                    }
+                }
+                questionAnswers.add(new QuestionAnswer(question,answer));
+            }
+        }
+        return questionAnswers;
+    }
+
 }

@@ -6,6 +6,7 @@ public class QuestionAnswer {
 
     private String question;
     private String answer;
+    private String sentence;
 
     public QuestionAnswer(String question, String answer){
         this.question = question;
@@ -25,6 +26,14 @@ public class QuestionAnswer {
 
     public void setAnswer(String answer) {
         this.answer = answer;
+    }
+
+    public void setSentence(String sentence) {
+        this.sentence = sentence;
+    }
+
+    public String getSentence() {
+        return sentence;
     }
 
     @Override

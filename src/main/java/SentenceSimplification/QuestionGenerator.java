@@ -18,17 +18,41 @@ public class QuestionGenerator {
         List<QuestionAnswer> questionAnswers = new ArrayList<>();
 
         Map<String, String> tregexAndWhWordList = AnalysisUtilities.getTregexFromFile("C:/Users/Sharanya R C/IdeaProjects/MachineComprehension/src/main/resources/tregex.txt");
+        int start=0, end= 0;
         for(Question q : sentenceParseTrees){
+            String sourceSentence = AnalysisUtilities.getQuestionString(q.getSourceTree());
+            String intermediateSentence = AnalysisUtilities.getQuestionString(q.getIntermediateTree());
+            start = questionAnswers.size();
             questionAnswers.addAll(generateHowQuestions(q.getSourceTree()));
+            end = questionAnswers.size();
+            for(int i=start; i<end; ++i)
+                questionAnswers.get(i).setSentence(sourceSentence);
+            start = end;
             questionAnswers.addAll(generateHowQuestions(q.getIntermediateTree()));
+            end = questionAnswers.size();
+            for(int i=start; i<end; ++i)
+                questionAnswers.get(i).setSentence(intermediateSentence);
+            start=end;
             questionAnswers.addAll(generateWhyQuestions(q.getSourceTree()));
+            end = questionAnswers.size();
+            for(int i=start; i<end; ++i)
+                questionAnswers.get(i).setSentence(sourceSentence);
+            start = end;
             questionAnswers.addAll(generateWhyQuestions(q.getIntermediateTree()));
+            end = questionAnswers.size();
+            for(int i=start; i<end; ++i)
+                questionAnswers.get(i).setSentence(intermediateSentence);
+            start = end;
             Tree superSenseTags = getSuperSenseTagTree(q.getIntermediateTree());
             for(Map.Entry<String,String> tregexAndWhWord : tregexAndWhWordList.entrySet()) {
                 String[] questionAndTree = tregexAndWhWord.getValue().split("_____");
                 Tree secondTree = questionAndTree[1].equals("supersense")?superSenseTags:q.getIntermediateTree();
                 questionAnswers.addAll(generateWhereWhoQuestions(q.getIntermediateTree(), secondTree, tregexAndWhWord.getKey(), questionAndTree[0]));
             }
+            end = questionAnswers.size();
+            for(int i=start; i<end; ++i)
+                questionAnswers.get(i).setSentence(intermediateSentence);
+
         }
         questionAnswers.addAll(generateAdditionalWhyQuestions(sentenceParseTrees));
         return questionAnswers;
@@ -243,8 +267,9 @@ public class QuestionGenerator {
         Tree parentNode;
         matchPattern = TregexPatternFactory.getPattern(tregexOpStr);
         matcher = matchPattern.matcher(superSenseTags);
-        System.out.println(parseTree.getLeaves());
+        /*System.out.println(parseTree.getLeaves());
         System.out.println(superSenseTags.getLeaves());
+        superSenseTags.pennPrint();*/
         while(matcher.find()){
             oldNodeInSST = matcher.getNode("replace");
             if(oldNodeInSST!=null) {
@@ -264,7 +289,15 @@ public class QuestionGenerator {
                 int nodeNumber2 = parentNode.objectIndexOf(oldNode);
                 parentNode.setChild(nodeNumber2, answerNode);
                 String questionString = AnalysisUtilities.getQuestionString(parseTree);
-                questionAnswers.add(new QuestionAnswer(questionString, answer.toString()));
+                if(whQuestionPhrase.equals("where")){
+                    String[] allowedPrepositions = {"in","on","over","at","to"};
+                    for(String e: allowedPrepositions){
+                        if(answer.toString().startsWith(e))
+                            questionAnswers.add(new QuestionAnswer(questionString, answer.toString()));
+                    }
+                }
+                else
+                    questionAnswers.add(new QuestionAnswer(questionString, answer.toString()));
                 parentNode.setChild(nodeNumber2, oldNode);
             }
         }
@@ -287,6 +320,7 @@ public class QuestionGenerator {
                 int end = (matchEnd + 1) < sentence.length() ? matchEnd + 1 : sentence.length();
                 String question = sentence.substring(0, start) + " why " + sentence.substring(end, sentence.length());
                 questionAnswers.add(new QuestionAnswer(question, answer));
+                questionAnswers.get(questionAnswers.size()-1).setSentence(sentence);
 
             }
         }
@@ -302,6 +336,7 @@ public class QuestionGenerator {
                 int end = (matchEnd + 1) < sentence.length() ? matchEnd + 1 : sentence.length();
                 String question = sentence.substring(0, start) + " why " + sentence.substring(end, sentence.length());
                 questionAnswers.add(new QuestionAnswer(question, answer));
+                questionAnswers.get(questionAnswers.size()-1).setSentence(sentence);
             }
         }
 
@@ -317,7 +352,7 @@ public class QuestionGenerator {
                 int end = (matchEnd + 1) < sentence.length() ? matchEnd + 1 : sentence.length();
                 String question = sentence.substring(0, start) + " why " + sentence.substring(end, sentence.length());
                 questionAnswers.add(new QuestionAnswer(question, answer));
-
+                questionAnswers.get(questionAnswers.size()-1).setSentence(sentence);
             }
         }
         Pattern fourthPattern = Pattern.compile("and\\s(therefore|hence)");
@@ -330,6 +365,7 @@ public class QuestionGenerator {
                 String answer = sentence.substring(0,matchStart);
                 String question = " why " + sentence.substring(matchEnd + 1, sentence.length());
                 questionAnswers.add(new QuestionAnswer(question, answer));
+                questionAnswers.get(questionAnswers.size()-1).setSentence(sentence);
             }
         }
 
@@ -370,6 +406,7 @@ public class QuestionGenerator {
                     }
                 }
                 questionAnswers.add(new QuestionAnswer(question,answer));
+                questionAnswers.get(questionAnswers.size()-1).setSentence(sentence);
             }
         }
         return questionAnswers;

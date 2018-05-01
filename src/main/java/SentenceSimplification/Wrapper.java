@@ -16,8 +16,8 @@ public class Wrapper {
         List<Tree> parseTrees = parseTreeGenerator.getParseTreesForDocument(document);
 
         //perform pronoun noun phrase coreference resolution using arkref
-        CoreferenceResolver coreferenceResolver = new CoreferenceResolver();
-        coreferenceResolver.resolveCorefence(parseTrees);
+        /*CoreferenceResolver coreferenceResolver = new CoreferenceResolver();
+        coreferenceResolver.resolveCorefence(parseTrees);*/
 
         //perform sentence simplification
         SentenceSimplifier sentenceSimplifier = new SentenceSimplifier();
@@ -35,17 +35,17 @@ public class Wrapper {
             }
 
             tmpSet = sentenceSimplifier.simplify(sentence, false);
-            for (Question q : tmpSet) {
+            /*for (Question q : tmpSet) {
                 q.setSourceSentenceNumber(sentnum);
                 q.setSourceDocument(coreferenceResolver.getDocument());
-            }
+            }*/
             trees.addAll(tmpSet);
 
             sentnum++;
         }
 
         //add new sentences with clarified/resolved NPs
-        trees.addAll(coreferenceResolver.clarifyNPs(trees, true, false));
+        /*trees.addAll(coreferenceResolver.clarifyNPs(trees, true, true));*/
 
 
         StringBuilder sb = new StringBuilder();
@@ -76,7 +76,7 @@ public class Wrapper {
         howAndWhyQuestions.clear();
         howAndWhyQuestions.addAll(withoutduplicates);
         for(QuestionAnswer qa: howAndWhyQuestions){
-            System.out.println("Question:"+qa.getQuestion()+" Answer:"+qa.getAnswer());
+            System.out.println("Question:"+qa.getQuestion()+" Answer:"+qa.getAnswer()+" Sentence:"+qa.getSentence());
 
         }
 

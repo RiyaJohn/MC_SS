@@ -25,7 +25,9 @@ public class QuestionGenerator {
             questionAnswers.addAll(generateWhyQuestions(q.getIntermediateTree()));
             Tree superSenseTags = getSuperSenseTagTree(q.getIntermediateTree());
             for(Map.Entry<String,String> tregexAndWhWord : tregexAndWhWordList.entrySet()) {
-                questionAnswers.addAll(generateWhereWhoQuestions(q.getIntermediateTree(), superSenseTags, tregexAndWhWord.getKey(), tregexAndWhWord.getValue()));
+                String[] questionAndTree = tregexAndWhWord.getValue().split("_____");
+                Tree secondTree = questionAndTree[1].equals("supersense")?superSenseTags:q.getIntermediateTree();
+                questionAnswers.addAll(generateWhereWhoQuestions(q.getIntermediateTree(), secondTree, tregexAndWhWord.getKey(), questionAndTree[0]));
             }
         }
         return questionAnswers;

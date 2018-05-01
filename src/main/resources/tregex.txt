@@ -1,0 +1,10 @@
+PP=replace << /(B-noun.location|B-noun.artifact)/_____where_____supersense
+NP=replace << /B-noun.person/_____who_____supersense
+NP=replace < (/[PRP | ^NN.*]/ $+ POS)_____whose_____original
+/PRP\$/=replace_____whose_____original
+NP < ( PRP < !/[I|i]t/)_____who______original
+/PP/=replace << /B-noun.time/_____when______supersense
+(NP=replace !>> PP) << /B-noun.time/_____when_____supersense
+PP << /B-noun.time/_____when_____supersense
+/.*/=replace > (CD|QP)_____how many_____original
+/.*/=replace < (IN  [</while/ | </before/ | </after/ | </during/ | </whilst/] & $+ ( S < VP))_____when_____original
